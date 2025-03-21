@@ -1,26 +1,38 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 
 interface ChatInputProps {
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onSend: () => void;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSendMessage: (message: string) => void;
   placeholder?: string;
-  disabled?: boolean;
+  isProcessing?: boolean;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
-  value = '', // Добавьте значение по умолчанию
-  onChange,
-  onSend,
+  value: externalValue,
+  onChange: externalOnChange,
+  onSendMessage,
   placeholder = 'Введите ваш вопрос...',
-  disabled = false,
+  isProcessing = false,
 }) => {
+  const [internalValue, setInternalValue] = useState('');
+
+  const value = externalValue !== undefined ? externalValue : internalValue;
+  const onChange = externalOnChange || ((e) => setInternalValue(e.target.value));
+
+  const handleSend = () => {
+    if (value.trim()) {
+      onSendMessage(value.trim());
+      setInternalValue(''); // Очищаем внутреннее состояние
+    }
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !e.shiftKey && value.trim()) {
       e.preventDefault();
-      onSend();
+      handleSend();
     }
   };
 
@@ -33,14 +45,14 @@ export const ChatInput: React.FC<ChatInputProps> = ({
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            disabled={disabled}
+            disabled={isProcessing}
             className="py-3"
             onKeyDown={handleKeyDown}
           />
         </div>
         <Button
-          onClick={onSend}
-          disabled={disabled || !value.trim()}
+          onClick={handleSend}
+          disabled={isProcessing || !value.trim()}
           variant="primary"
         >
           Отправить
@@ -52,3 +64,5 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     </div>
   );
 };
+
+export default ChatInput;
