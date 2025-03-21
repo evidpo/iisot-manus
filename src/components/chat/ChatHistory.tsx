@@ -20,7 +20,7 @@ interface ChatHistoryProps {
 }
 
 export const ChatHistory: React.FC<ChatHistoryProps> = ({
-  messages,
+  messages = [], // Добавьте значение по умолчанию
   loading = false,
 }) => {
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
