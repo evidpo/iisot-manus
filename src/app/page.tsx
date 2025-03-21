@@ -220,7 +220,6 @@ export default function ChatPage() {
         <div className="flex-1 flex flex-col bg-white">
           {/* Заголовок чата */}
           <div className="border-b border-gray-200 p-4 flex justify-between items-center">
-          /* Замените блок кнопки переключения сайдбара в src/app/page.tsx */
 
             <button
               onClick={toggleSidebar}
@@ -234,6 +233,7 @@ export default function ChatPage() {
                 />
               </svg>
             </button>
+            
             <h1 className="text-xl font-semibold">
               {selectedChat
                 ? chatHistory.find(chat => chat.id === selectedChat)?.title || 'Чат с ассистентом'
