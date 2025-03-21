@@ -11,7 +11,7 @@ interface ChatInputProps {
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
-  value,
+  value = '', // Добавьте значение по умолчанию
   onChange,
   onSend,
   placeholder = 'Введите ваш вопрос...',
