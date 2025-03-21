@@ -1,5 +1,6 @@
 "use client";
 
+import './globals.css'; // Добавьте эту строку в самое начало
 import React from 'react';
 import { Navbar } from '../components/layout/Navbar';
 import { AuthProvider } from '../lib/auth';
