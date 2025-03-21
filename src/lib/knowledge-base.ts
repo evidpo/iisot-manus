@@ -205,3 +205,4 @@ export const knowledgeBase = [
     summary: 'Порядок разработки и утверждения инструкций по охране труда',
     source: 'http://www.consultant.ru/document/cons_doc_LAW_401709/'
   }
+  ]
