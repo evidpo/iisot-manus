@@ -201,6 +201,7 @@ export const knowledgeBase = [
 4) Требования охраны труда в аварийных ситуациях;
 5) Требования охраны труда по окончании работы.
 
-Инструкции по охране труда утверждаются работодателем с учетом мнения выборного органа первичной профсоюзной организации (при его наличии).
-
-<response clipped><NOTE>To save on context only part of this file has been shown to you. You should retry this tool after you have searched inside the file with `grep -n` in order to find the line numbers of what you are looking for.</NOTE>
+Инструкции по охране труда утверждаются работодателем с учетом мнения выборного органа первичной профсоюзной организации (при его наличии).`,
+    summary: 'Порядок разработки и утверждения инструкций по охране труда',
+    source: 'http://www.consultant.ru/document/cons_doc_LAW_401709/'
+  }
