@@ -52,7 +52,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
               {openMenuId === chat.id && (
                 <div className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
                   <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
-                    
+                    <a
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
@@ -63,7 +63,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
                     >
                       Редактировать
                     </a>
-                    
+                    <a
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
