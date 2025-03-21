@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../lib/auth';
-import { Navbar } from '../../components/layout/Navbar';
-import { ChatMessage } from '../../components/chat/ChatMessage';
-import { ChatInput } from '../../components/chat/ChatInput';
-import { ChatHistory } from '../../components/chat/ChatHistory';
-import { ChatService } from '../../lib/chat-service';
+import { useAuth } from '../lib/auth';
+import { Navbar } from '../components/layout/Navbar';
+import { ChatMessage } from '../components/chat/ChatMessage';
+import { ChatInput } from '../components/chat/ChatInput';
+import { ChatHistory } from '../components/chat/ChatHistory';
+import { ChatService } from '../lib/chat-service';
 import Link from 'next/link';
 
 export default function ChatPage() {
@@ -15,7 +15,8 @@ export default function ChatPage() {
   const [chatHistory, setChatHistory] = useState([]);
   const [selectedChat, setSelectedChat] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
   // Загрузка истории чатов при монтировании компонента
   useEffect(() => {
     if (user) {
@@ -39,42 +40,10 @@ export default function ChatPage() {
   }, [user]);
   
   // Сохранение сообщений в историю чатов
-  const saveMessages = (newMessages) => {
-    if (!user) return;
-    
-    let updatedHistory = [...chatHistory];
-    
-    if (selectedChat) {
-      // Обновляем существующий чат
-      updatedHistory = updatedHistory.map(chat => 
-        chat.id === selectedChat 
-          ? { 
-              ...chat, 
-              messages: newMessages, 
-              updatedAt: new Date(),
-              title: newMessages[0]?.content.substring(0, 30) + '...' || chat.title
-            } 
-          : chat
-      );
-    } else {
-      // Создаем новый чат
-      const newChat = {
-        id: `chat_${Date.now()}`,
-        title: newMessages[0]?.content.substring(0, 30) + '...' || 'Новый чат',
-        messages: newMessages,
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      updatedHistory.push(newChat);
-      setSelectedChat(newChat.id);
+  const saveMessages = (updatedHistory) => {
+    if (user) {
+      localStorage.setItem(`user_chats_${user.id}`, JSON.stringify(updatedHistory));
     }
-    
-    // Сортировка чатов по дате обновления (самые свежие первыми)
-    updatedHistory.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-    
-    setChatHistory(updatedHistory);
-    localStorage.setItem(`user_chats_${user.id}`, JSON.stringify(updatedHistory));
   };
   
   // Обработка отправки сообщения
@@ -145,6 +114,40 @@ export default function ChatPage() {
     setMessages([]);
   };
   
+  // Редактирование чата
+  const handleEditChat = (chatId) => {
+    const chatToEdit = chatHistory.find(chat => chat.id === chatId);
+    if (chatToEdit) {
+      const newTitle = prompt('Введите новое название чата', chatToEdit.title);
+      if (newTitle) {
+        const updatedHistory = chatHistory.map(chat =>
+          chat.id === chatId ? { ...chat, title: newTitle } : chat  
+        );
+        setChatHistory(updatedHistory);
+        saveMessages(updatedHistory);
+      }
+    }
+  };
+  
+  // Удаление чата
+  const handleDeleteChat = (chatId) => {
+    if (window.confirm('Вы уверены, что хотите удалить этот чат?')) {
+      const updatedHistory = chatHistory.filter(chat => chat.id !== chatId);
+      setChatHistory(updatedHistory);
+      saveMessages(updatedHistory);
+      
+      if (selectedChat === chatId) {
+        setSelectedChat(null);
+        setMessages([]);
+      }
+    }
+  };
+
+  // Переключение видимости боковой панели
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+  
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -175,7 +178,11 @@ export default function ChatPage() {
       
       <div className="flex-1 flex">
         {/* Боковая панель с историей чатов */}
-        <div className="w-64 bg-gray-100 border-r border-gray-200 flex flex-col">
+        <div
+          className={`${
+            isSidebarOpen ? 'w-64' : 'w-0'
+          } bg-gray-100 border-r border-gray-200 flex flex-col transition-width duration-300 ease-in-out`}
+        >
           <div className="p-4">
             <button
               onClick={handleNewChat}
@@ -192,7 +199,9 @@ export default function ChatPage() {
             <ChatHistory 
               chats={chatHistory} 
               selectedChatId={selectedChat} 
-              onSelectChat={handleSelectChat} 
+              onSelectChat={handleSelectChat}
+              onEditChat={handleEditChat}  
+              onDeleteChat={handleDeleteChat}
             />
           </div>
           
@@ -211,16 +220,27 @@ export default function ChatPage() {
         {/* Основная область чата */}
         <div className="flex-1 flex flex-col bg-white">
           {/* Заголовок чата */}
-          <div className="border-b border-gray-200 p-4">
+          <div className="border-b border-gray-200 p-4 flex justify-between items-center">
+            <button
+              onClick={toggleSidebar}
+              className="text-gray-500 hover:text-gray-700 focus:outline-none mr-4"
+            >
+              <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d={isSidebarOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
+                />
+              </svg>
+            </button>
             <h1 className="text-xl font-semibold">
               {selectedChat 
                 ? chatHistory.find(chat => chat.id === selectedChat)?.title || 'Чат с ассистентом' 
                 : 'Новый чат'
               }
             </h1>
-            <p className="text-sm text-gray-600">
-              Задайте вопрос по охране труда, и я помогу вам найти ответ
-            </p>
+            <div className="w-6"></div>
           </div>
           
           {/* Сообщения */}
@@ -237,40 +257,38 @@ export default function ChatPage() {
                   Я помогу вам с вопросами по законодательству, нормам безопасности и документообороту в сфере охраны труда.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-lg">
-                  <button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
-                    Расскажи о требованиях к проведению инструктажа по охране труда
-                  </button>
-                  <button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
-                    Какие документы нужны для специальной оценки условий труда?
-                  </button>
-                  <button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
-                    Как оформить несчастный случай на производстве?
-                  </button>
-                  <button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
-                    Какие изменения в законодательстве по охране труда были в 2025 году?
-                  </button>
-                </div>
-              </div>
-            ) : (
-              messages.map(message => (
-                <ChatMessage 
-                  key={message.id} 
-                  message={message} 
-                  userRole={user.role} 
-                />
-              ))
-            )}
-          </div>
-          
-          {/* Поле ввода сообщения */}
-          <div className="border-t border-gray-200 p-4">
-            <ChatInput 
-              onSendMessage={handleSendMessage} 
-              isProcessing={isProcessing} 
-            />
-          </div>
-        </div>
+                  <button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left textsm">
+Расскажи о требованиях к проведению инструктажа по охране труда
+</button>
+<button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
+Какие документы нужны для специальной оценки условий труда?
+</button>
+<button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
+Как оформить несчастный случай на производстве?
+</button>
+<button className="bg-gray-100 hover:bg-gray-200 p-3 rounded-lg text-left text-sm">
+Какие изменения в законодательстве по охране труда были в 2025 году?
+</button>
+</div>
+</div>
+) : (
+messages.map(message => (
+<ChatMessage 
+               key={message.id} 
+               message={message} 
+               userRole={user.role} 
+             />
+))
+)}
+</div> {/* Поле ввода сообщения */}
+      <div className="border-t border-gray-200 p-4">
+        <ChatInput 
+          onSendMessage={handleSendMessage} 
+          isProcessing={isProcessing} 
+        />
       </div>
     </div>
-  );
+  </div>
+</div>
+);
 }
