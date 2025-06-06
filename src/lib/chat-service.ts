@@ -1,11 +1,24 @@
 "use client";
 
-import { knowledgeBase } from './knowledge-base';
+import { knowledgeBase, KnowledgeBaseItem } from './knowledge-base';
+import type { UserRole } from './auth';
 
 // Сервис для работы с чатом
+/**
+ * Ответ ассистента, содержащий текст и список источников.
+ */
+export interface AssistantResponse {
+  text: string;
+  references: { title: string; url: string; description?: string }[];
+}
 export class ChatService {
-  // Получение ответа от ассистента
-  static async getAssistantResponse(query: string, userRole: string) {
+  /**
+   * Получение ответа от ассистента на основе запроса и роли пользователя.
+   * @param query Текст запроса пользователя
+   * @param userRole Роль пользователя для адаптации ответа
+   * @returns Объект с текстом ответа и ссылками на источники
+   */
+  static async getAssistantResponse(query: string, userRole: UserRole): Promise<AssistantResponse> {
     // В реальном приложении здесь был бы запрос к API ИИ-модели
     // Для демонстрации используем имитацию ответа на основе базы знаний
     
@@ -26,8 +39,10 @@ export class ChatService {
     }
   }
   
-  // Поиск релевантной информации в базе знаний
-  private static findRelevantInformation(query: string) {
+  /**
+   * Поиск релевантной информации по ключевым словам в базе знаний.
+   */
+  private static findRelevantInformation(query: string): KnowledgeBaseItem[] {
     const normalizedQuery = query.toLowerCase();
     
     // Поиск по ключевым словам
@@ -44,8 +59,10 @@ export class ChatService {
     return relevantItems;
   }
   
-  // Генерация ответа на основе найденной информации
-  private static generateResponse(query: string, relevantInfo: any[], userRole: string) {
+  /**
+   * Генерация ответа на основе найденной информации и роли пользователя.
+   */
+  private static generateResponse(query: string, relevantInfo: KnowledgeBaseItem[], userRole: UserRole): AssistantResponse {
     // Адаптация ответа в зависимости от роли пользователя
     const roleSpecificInfo = this.adaptResponseToRole(relevantInfo, userRole);
     

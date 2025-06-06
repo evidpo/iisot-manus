@@ -6,16 +6,25 @@ import { Navbar } from '../../components/layout/Navbar';
 import { ChatMessage } from '../../components/chat/ChatMessage';
 import { ChatInput } from '../../components/chat/ChatInput';
 import { ChatHistory } from '../../components/chat/ChatHistory';
-import { KnowledgeService } from '../../lib/knowledge-service';
 import { ChatService } from '../../lib/chat-service';
 import Link from 'next/link';
+import type { Message } from '../../lib/types';
+
+// Сессия чата
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export default function ChatPage() {
   const { user, loading } = useAuth();
-  const [messages, setMessages] = useState([]);
-  const [chatHistory, setChatHistory] = useState([]);
-  const [selectedChat, setSelectedChat] = useState(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [chatHistory, setChatHistory] = useState<ChatSession[]>([]);
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
   
   // Загрузка истории чатов при монтировании компонента
   useEffect(() => {
@@ -41,7 +50,7 @@ export default function ChatPage() {
   }, [user]);
   
   // Сохранение сообщений в историю чатов
-  const saveMessages = (newMessages) => {
+  const saveMessages = (newMessages: Message[]): void => {
     if (!user) return;
     
     let updatedHistory = [...chatHistory];
@@ -72,7 +81,7 @@ export default function ChatPage() {
   };
   
   // Обработка отправки сообщения
-  const handleSendMessage = async (content) => {
+  const handleSendMessage = async (content: string): Promise<void> => {
     if (!content.trim() || isProcessing) return;
     
     setIsProcessing(true);
@@ -125,16 +134,16 @@ export default function ChatPage() {
   };
   
   // Выбор чата из истории
-  const handleSelectChat = (chatId) => {
-    const selectedChat = chatHistory.find(chat => chat.id === chatId);
-    if (selectedChat) {
+  const handleSelectChat = (chatId: string): void => {
+    const selected = chatHistory.find(chat => chat.id === chatId);
+    if (selected) {
       setSelectedChat(chatId);
-      setMessages(selectedChat.messages);
+      setMessages(selected.messages);
     }
   };
   
   // Создание нового чата
-  const handleNewChat = () => {
+  const handleNewChat = (): void => {
     setSelectedChat(null);
     setMessages([]);
   };

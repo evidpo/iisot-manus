@@ -1,4 +1,28 @@
-export const knowledgeBase = [
+/**
+ * Элемент записи базы знаний по охране труда.
+ */
+export interface KnowledgeBaseItem {
+  /** Уникальный идентификатор записи */
+  id: string;
+  /** Заголовок записи */
+  title: string;
+  /** Категория записи */
+  category: string;
+  /** Ключевые слова для поиска */
+  keywords: string[];
+  /** Роли пользователей, для которых запись релевантна */
+  relevantFor: string[];
+  /** Полный текст записи */
+  content: string;
+  /** Краткий обзор содержания записи */
+  summary: string;
+  /** Источник или ссылка на источник */
+  source: string;
+}
+/**
+ * База знаний по охране труда.
+ */
+export const knowledgeBase: KnowledgeBaseItem[] = [
   {
     id: 'kb_001',
     title: 'Трудовой кодекс РФ - Раздел X. Охрана труда',

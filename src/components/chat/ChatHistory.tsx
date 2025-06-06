@@ -8,8 +8,8 @@ interface ChatHistoryProps {
   }>;
   selectedChatId: string | null;
   onSelectChat: (chatId: string) => void;
-  onEditChat: (chatId: string) => void;
-  onDeleteChat: (chatId: string) => void;
+  onEditChat?: (chatId: string) => void;
+  onDeleteChat?: (chatId: string) => void;
 }
 
 export const ChatHistory: React.FC<ChatHistoryProps> = ({
@@ -56,7 +56,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        onEditChat(chat.id);
+                        onEditChat?.(chat.id);
                       }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                       role="menuitem"
@@ -67,7 +67,7 @@ export const ChatHistory: React.FC<ChatHistoryProps> = ({
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        onDeleteChat(chat.id);
+                        onDeleteChat?.(chat.id);
                       }}
                       className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900"
                       role="menuitem"
